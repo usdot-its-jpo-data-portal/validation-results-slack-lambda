@@ -26,7 +26,7 @@ Resources:
       Runtime: python3.8
       Timeout: 600
       MemorySize: 512
-      Description: Aggregates canary function results and publishes them.
+      Description: Aggregates canary function results and publishes them to Slack.
       Handler: main.lambda_handler
       Environment:
         Variables:

@@ -17,19 +17,15 @@ phases:
     commands:
       - docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t $IMAGE_URI:$IMAGE_TAG .
       - |
-        docker run --rm \
-          -e "BUCKET=$BUCKET" \
-          -e "FUNCTION_NAME=$FUNCTION_NAME" \
-          -e "REGION=$AWS_DEFAULT_REGION" \
-          -e "ENV=$ENV" \
-          -e "PARAMETER_OVERRIDES=$PARAMETER_OVERRIDES" \
-          -i $IMAGE_URI:$IMAGE_TAG
-  post_build:
-    commands:
-      - |
         if [ "$CODEBUILD_GIT_BRANCH" = "master" ] || [ "$CODEBUILD_GIT_BRANCH" = "development" ]; then
+          docker run --rm \
+            -e "BUCKET=$BUCKET" \
+            -e "FUNCTION_NAME=$FUNCTION_NAME" \
+            -e "REGION=$AWS_DEFAULT_REGION" \
+            -e "ENV=$ENV" \
+            -e "PARAMETER_OVERRIDES=$PARAMETER_OVERRIDES" \
+            -i $IMAGE_URI:$IMAGE_TAG;
           docker push "$IMAGE_URI:$IMAGE_TAG";
           docker tag "$IMAGE_URI:$IMAGE_TAG" "$IMAGE_URI:latest"
           docker push "$IMAGE_URI:latest";
-          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment;
         fi
