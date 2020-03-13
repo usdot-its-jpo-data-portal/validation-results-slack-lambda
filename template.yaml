@@ -23,7 +23,7 @@ Resources:
       FunctionName: !Sub
         - validation-results-lambda-${AWS_ENV}
         - { AWS_ENV: !Ref ENV }
-      Role: "{{resolve:ssm:lambda-role-arn:1}}"
+      Role: "{{resolve:ssm:lambda-sqs-role-arn:1}}"
       Runtime: python3.8
       Timeout: 600
       MemorySize: 512
