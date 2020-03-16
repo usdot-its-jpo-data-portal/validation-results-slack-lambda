@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Parameters:
+  ENV:
+    Type: String
+    AllowedValues:
+      - generic
+      - dev
+      - stage
+      - prod
+  SLACKWEBHOOK:
+    Type: String
+  SQSRESULTQUEUE:
+    Type: String
+  VERBOSEOUTPUT:
+    Type: String
+    Default: "TRUE"
+Resources:
+  Function:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: src
+      FunctionName: !Sub
+        - validation-results-lambda-${AWS_ENV}
+        - { AWS_ENV: !Ref ENV }
+      Role: "{{resolve:ssm:lambda-sqs-role-arn:1}}"
+      Runtime: python3.8
+      Timeout: 600
+      MemorySize: 512
+      Description: Aggregates canary function results and publishes them to Slack.
+      Handler: main.lambda_handler
+      Environment:
+        Variables:
+          SLACK_WEBHOOK: !Ref SLACKWEBHOOK
+          SQS_RESULT_QUEUE: !Ref SQSRESULTQUEUE
+          VERBOSE_OUTPUT: !Ref VERBOSEOUTPUT
+      Events:
+        Run:
+          Type: Schedule
+          Properties:
+            Schedule: cron(01 00 ? * * *)
