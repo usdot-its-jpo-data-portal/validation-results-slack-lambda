@@ -15,6 +15,12 @@ Parameters:
   VERBOSEOUTPUT:
     Type: String
     Default: "TRUE"
+  RECIPIENTSDICT:
+    Type: String
+  SENDER:
+    Type: String
+  CC:
+    Type: String
 Resources:
   Function:
     Type: "AWS::Serverless::Function"
@@ -34,6 +40,9 @@ Resources:
           SLACK_WEBHOOK: !Ref SLACKWEBHOOK
           SQS_RESULT_QUEUE: !Ref SQSRESULTQUEUE
           VERBOSE_OUTPUT: !Ref VERBOSEOUTPUT
+          RECIPIENTS_DICT: !Ref RECIPIENTSDICT
+          SENDER: !Ref SENDER
+          CC: !Ref CC
       Events:
         Run:
           Type: Schedule

@@ -4,8 +4,9 @@ import logging
 import os
 import pickle
 import yaml
+from pysqs_extended_client.SQSClientExtended import SQSClientExtended
+
 from slacker import SlackMessage
-from sqs_client import SQSClientExtended
 
 # SQS settings
 SQS_RESULT_QUEUE = os.environ.get('SQS_RESULT_QUEUE')
@@ -14,6 +15,12 @@ assert SQS_RESULT_QUEUE != None, "Failed to get required environment variable SQ
 # Slack properties
 SLACK_WEBHOOK = os.environ.get('SLACK_WEBHOOK')
 assert SLACK_WEBHOOK != None, "Failed to get required environment variable SLACK_WEBHOOK"
+
+# Mailer properties
+RECIPIENTS_DICT = json.loads(os.environ.get('RECIPIENTS_DICT', '{}'))
+SENDER = os.environ.get('SENDER')
+CC = os.environ.get('CC', '')
+CC = [i.strip() for i in CC.split(',')]
 
 # Setup logger
 VERBOSE_OUTPUT = True if os.environ.get('VERBOSE_OUTPUT') == 'TRUE' else False
@@ -117,6 +124,9 @@ def aggregate_results(local_test, context=None):
         aws_request_id=context.aws_request_id,
         log_group_name=context.log_group_name,
         log_stream_name=context.log_stream_name,
+        recipients_dict=RECIPIENTS_DICT,
+        sender=SENDER,
+        cc=CC
     )
 
     queue_attrs = sqs_client.get_queue_attributes(
