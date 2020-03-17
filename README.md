@@ -25,8 +25,7 @@ The following table lists the environment variables used for configuration.
 | SQS_RESULT_QUEUE | SQS queue name (not URL or ARN, just the name) from which validation results will arrive |
 | SLACK_WEBHOOK    | Slack channel webhook to which messages will be sent                                     |
 | VERBOSE_OUTPUT   | Set to `TRUE` to activate, all other falues will set this to false                       |
-| RECIPIENTS_DICT  | Stringified JSON object with data provider names as the keys and arrays of email         |
-|                  | addresses as the values                                                                  |
+| RECIPIENTS_DICT  | Stringified JSON with data provider names as the keys and list of emails as the values   |
 | SENDER           | Email address from which to send the aggregated count and validation report              |
 | CC               | Comma delimited email addresses that the email report will be Cc'ed to                   |
 
