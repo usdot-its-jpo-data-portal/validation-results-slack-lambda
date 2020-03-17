@@ -50,6 +50,7 @@ class EmailReport():
         # Display an error if something goes wrong.
         except ClientError as e:
             logger.debug(e.response['Error']['Message'])
+            raise e
         else:
             logger.info("Email sent! Message ID:"),
             logger.info(response['MessageId'])
