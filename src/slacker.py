@@ -8,7 +8,7 @@ from mailer import EmailReport
 class SlackMessage():
     def __init__(self, success, validation_count, result_dict, err_details,
     function_name, aws_request_id, log_group_name, log_stream_name,
-    recipients_dict, sender, cc):
+    recipients_dict=None, sender=None, cc=[]):
         if success and validation_count > 0:
             self.validation = "PASSED"
         elif success and validation_count == 0:
@@ -21,9 +21,15 @@ class SlackMessage():
         self.aws_request_id = aws_request_id
         self.log_group_name = log_group_name
         self.log_stream_name = log_stream_name
-        self.emailReport = EmailReport(sender)
-        self.recipients_dict = recipients_dict
-        self.cc = cc
+        if not sender or recipients_dict:
+            self.emailReport = None
+            self.recipients_dict = {}
+            self.cc = None
+        else:
+            self.emailReport = EmailReport(sender)
+            self.recipients_dict = recipients_dict
+            self.cc = cc
+
 
     def send(self, logger, dest_url, extra_message=None):
         result_blocks = []
@@ -72,8 +78,8 @@ class SlackMessage():
                                     })
                     email_text += text
             result_blocks.append({'type': 'divider'})
-            if RECIPIENTS_DICT.get(data_provider):
-                recipients = RECIPIENTS_DICT[data_provider]
+            if self.emailReport and self.recipients_dict.get(data_provider):
+                recipients = self.recipients_dict.get(data_provider)
                 logger.info('Emailing {} report to: {}'.format(data_provider, ','.join(recipients)))
                 self.emailReport.send(logger, recipients, self.cc,
                 subject='Daily CVP Sandbox Ingestion Report for {}'.format(data_provider.upper()),

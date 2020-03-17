@@ -17,7 +17,7 @@ SLACK_WEBHOOK = os.environ.get('SLACK_WEBHOOK')
 assert SLACK_WEBHOOK != None, "Failed to get required environment variable SLACK_WEBHOOK"
 
 # Mailer properties
-RECIPIENTS_DICT = json.loads(os.environ.get('RECIPIENTS_DICT', ''))
+RECIPIENTS_DICT = json.loads(os.environ.get('RECIPIENTS_DICT', '{}'))
 SENDER = os.environ.get('SENDER')
 CC = os.environ.get('CC', '')
 CC = [i.strip() for i in CC.split(',')]
