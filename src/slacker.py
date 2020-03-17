@@ -73,7 +73,7 @@ class SlackMessage():
                     email_text += text
             result_blocks.append({'type': 'divider'})
             if RECIPIENTS_DICT.get(data_provider):
-                recipients = RECIPIENTS_DICT[data_provider]['recipients']
+                recipients = RECIPIENTS_DICT[data_provider]
                 logger.info('Emailing {} report to: {}'.format(data_provider, ','.join(recipients)))
                 self.emailReport.send(logger, recipients, self.cc,
                 subject='Daily CVP Sandbox Ingestion Report for {}'.format(data_provider.upper()),

@@ -25,6 +25,10 @@ The following table lists the environment variables used for configuration.
 | SQS_RESULT_QUEUE | SQS queue name (not URL or ARN, just the name) from which validation results will arrive |
 | SLACK_WEBHOOK    | Slack channel webhook to which messages will be sent                                     |
 | VERBOSE_OUTPUT   | Set to `TRUE` to activate, all other falues will set this to false                       |
+| RECIPIENTS_DICT  | Stringified JSON object with data provider names as the keys and arrays of email         |
+|                  | addresses as the values                                                                  |
+| SENDER           | Email address from which to send the aggregated count and validation report              |
+| CC               | Comma delimited email addresses that the email report will be Cc'ed to                   |
 
 ### Installing and Running Locally
 
@@ -48,6 +52,7 @@ To deploy this as an AWS Lambda function:
   - `s3:Get*` for your S3/SQS storage bucket
   - `s3:List*` for your S3/SQS storage bucket
   - `sqs:*` for your SQS queue
+  - `ses:*` for permission to send email through AWS SES.
 3. Run `package.sh` locally which will create `results.zip`
 4. Upload the `results.zip` as the Lambda function code
 5. Add a CloudWatch CRON event to trigger the function periodically
