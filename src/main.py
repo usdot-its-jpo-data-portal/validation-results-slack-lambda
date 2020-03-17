@@ -4,7 +4,7 @@ import logging
 import os
 import pickle
 import yaml
-from sqs_client import SQSClientExtended
+from pysqs_extended_client.SQSClientExtended import SQSClientExtended
 
 from slacker import SlackMessage
 
