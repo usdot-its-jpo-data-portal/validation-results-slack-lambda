@@ -21,14 +21,12 @@ class SlackMessage():
         self.aws_request_id = aws_request_id
         self.log_group_name = log_group_name
         self.log_stream_name = log_stream_name
-        if not sender or recipients_dict:
+        if not sender:
             self.emailReport = None
-            self.recipients_dict = {}
-            self.cc = None
         else:
             self.emailReport = EmailReport(sender)
-            self.recipients_dict = recipients_dict
-            self.cc = cc
+        self.recipients_dict = recipients_dict
+        self.cc = cc
 
 
     def send(self, logger, dest_url, extra_message=None):
