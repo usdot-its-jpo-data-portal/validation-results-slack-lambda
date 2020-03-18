@@ -47,7 +47,7 @@ def aggregate_results(local_test, context=None):
     sqs_client = boto3.client('sqs')
     result_queue_url = sqs_client.get_queue_url(
         QueueName=SQS_RESULT_QUEUE)['QueueUrl']
-    sqs_extended = SQSClientExtended.SQSClientExtended()
+    sqs_extended = SQSClientExtended()
 
     # Prevent duplicating messages by tracking their IDs
     received_message_ids = []
