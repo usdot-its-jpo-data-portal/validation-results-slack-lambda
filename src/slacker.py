@@ -30,6 +30,7 @@ class SlackMessage():
 
 
     def send(self, logger, dest_url, extra_message=None):
+        ## TODO: refactor basic report aggregation to aggregator
         result_blocks = []
         for data_provider, dpdict in self.result_dict.items():
             result_blocks.append({
