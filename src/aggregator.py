@@ -24,6 +24,7 @@ class ResultAggregator():
         # init depending on if starting a new daily report or continuing the last report
         if event.get('report_date'):
             self.report_info = deepcopy(event)
+            self.logger.info('Continuing report for {} ({} validations included)'.format(event.get('report_date'), event.get('total_validation_count')))
         else:
             self.report_info = {
                 'is_local_test': False,
@@ -36,6 +37,7 @@ class ResultAggregator():
                 'received_message_ids': [],
                 'report_date': (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
             }
+            self.logger.info('Starting report for {}'.format(self.report_info.get('report_date')))
 
     def decide_to_continue(self, messages):
         # check if need to trigger new lambda
@@ -50,9 +52,9 @@ class ResultAggregator():
             return False
 
         # check date
-        message_sent_time = int(messages[0]['attributes']['SentTimestamp'])
+        message_sent_time = int(messages[0]['Attributes']['SentTimestamp'])
         message_sent_day = datetime.fromtimestamp(message_sent_time/1000).strftime('%Y-%m-%d')
-        if message_sent_dt != self.report_info['report_date']:
+        if message_sent_day != self.report_info['report_date']:
             self.report_done = True
             self.logger.info("Report done. All validations from {} have been aggregated".format(self.report_info['report_date']))
             return False
