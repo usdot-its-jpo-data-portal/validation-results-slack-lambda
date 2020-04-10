@@ -47,4 +47,4 @@ Resources:
         Run:
           Type: Schedule
           Properties:
-            Schedule: cron(01 00 ? * * *)
+            Schedule: cron(59 03 ? * * *)
