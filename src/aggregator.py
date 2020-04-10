@@ -160,9 +160,8 @@ class ResultAggregator():
     def run(self):
         if self.report_info['is_local_test']:
             self.logger.info("(Local Test) Running as local test!")
-        messages = sqs_extended.receive_message(
-            queue_url=result_queue_url, max_number_Of_Messages=1)
 
+        messages = self.sqs_extended.receive_message(queue_url=self.result_queue_url, max_number_Of_Messages=1)
         while self.decide_to_continue(messages):
             message = messages[0]
             self.parse_message(message)
@@ -170,7 +169,6 @@ class ResultAggregator():
 
         if self.report_done:
             self.send_report()
-            # send report
         else:
             self.trigger_lambda()
 
