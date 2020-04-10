@@ -44,7 +44,7 @@ class ResultAggregator():
             return False
 
         # check if any more messages
-        if messages == None or len(messages) > 0:
+        if messages == None or len(messages) == 0:
             self.report_done = True
             self.logger.info("Report done. No more messages left in queue.")
             return False
