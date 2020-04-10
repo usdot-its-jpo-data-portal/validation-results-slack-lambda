@@ -1,6 +1,6 @@
 import boto3
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 import os
@@ -34,17 +34,19 @@ class ResultAggregator():
                 'total_validation_count': 0,
                 'total_validations_failed': 0,
                 'received_message_ids': [],
-                'report_date': datetime.today().strftime('%Y-%m-%d')
+                'report_date': (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
             }
 
     def decide_to_continue(self, messages):
         # check if need to trigger new lambda
-        if self.context.get_remaining_time_in_millis() < 10000:
+        if self.context.get_remaining_time_in_millis() < 60000:
+            self.logger.info("Less than one minute left: stopping process to trigger another lambda.")
             return False
 
         # check if any more messages
         if messages == None or len(messages) > 0:
             self.report_done = True
+            self.logger.info("Report done. No more messages left in queue.")
             return False
 
         # check date
@@ -52,6 +54,7 @@ class ResultAggregator():
         message_sent_day = datetime.fromtimestamp(message_sent_time/1000).strftime('%Y-%m-%d')
         if message_sent_dt != self.report_info['report_date']:
             self.report_done = True
+            self.logger.info("Report done. All validations from {} have been aggregated".format(self.report_info['report_date']))
             return False
 
         return True
