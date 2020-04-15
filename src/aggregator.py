@@ -29,9 +29,8 @@ class ResultAggregator():
         else:
             self.report_info = {
                 'is_local_test': False,
-                'error_dict': {},
                 'result_dict': {},
-                'error_details': {},
+                'error_dict': {},
                 'sqs_msgs_received': 0,
                 'total_validation_count': 0,
                 'total_validations_failed': 0,
@@ -79,9 +78,6 @@ class ResultAggregator():
         errKey = data_provider+','+message_type
         if not self.report_info['error_dict'].get(errKey):
             self.report_info['error_dict'][errKey] = {}
-            self.report_info['error_details'][errKey] = {}
-        self.report_info['error_dict'][errKey][cur_msg_key] = []
-        self.report_info['error_details'][errKey][cur_msg_key] = []
 
         self.report_info['result_dict'][data_provider][message_type]['files_analyzed'] += 1
 
@@ -95,8 +91,11 @@ class ResultAggregator():
                     self.report_info['result_dict'][data_provider][message_type]['validations_failed'] += 1
                     self.report_info['total_validations_failed'] += 1
                     self.logger.debug("Found failed validation: %s" % validation)
-                    self.report_info['error_dict'][errKey][cur_msg_key].append(validation['Details'])
-                    self.report_info['error_details'][errKey][cur_msg_key].append(validation['Details'])
+                    #TODO: save all error_dict info
+                    if len(self.report_info['error_dict'][errKey].keys()) < 50:
+                        if not self.report_info['error_dict'][errKey].get(cur_msg_key):
+                            self.report_info['error_dict'][errKey][cur_msg_key] = []
+                        self.report_info['error_dict'][errKey][cur_msg_key].append(validation['Details'])
 
 
     def parse_message(self, message):
@@ -121,13 +120,12 @@ class ResultAggregator():
     def send_report(self):
         self.logger.debug(
             "Finished message polling loop, found %d SQS messages." % self.report_info['sqs_msgs_received'])
-        self.logger.debug("Error dict: %s" % json.dumps(self.report_info['error_dict']))
-        self.logger.debug("Error details: %s" % json.dumps(self.report_info['error_details']))
+        self.logger.debug("Error details: %s" % json.dumps(self.report_info['error_dict']))
         slack_message = SlackMessage(
             success=self.report_info['total_validations_failed'] == 0,
             validation_count=self.report_info['total_validation_count'],
             result_dict=self.report_info['result_dict'],
-            err_details=self.report_info['error_details'],
+            error_dict=self.report_info['error_dict'],
             function_name=self.context.function_name,
             aws_request_id=self.context.aws_request_id,
             log_group_name=self.context.log_group_name,

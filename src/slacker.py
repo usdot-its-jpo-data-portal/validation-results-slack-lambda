@@ -7,7 +7,7 @@ from mailer import EmailReport
 
 
 class SlackMessage():
-    def __init__(self, success, validation_count, result_dict, err_details,
+    def __init__(self, success, validation_count, result_dict, error_dict,
     function_name, aws_request_id, log_group_name, log_stream_name,
     recipients_dict=None, sender=None, cc=[]):
         if success and validation_count > 0:
@@ -17,7 +17,7 @@ class SlackMessage():
         else:
             self.validation = "FAILED"
         self.result_dict = result_dict
-        self.err_details = err_details
+        self.error_dict = error_dict
         self.function_name = function_name
         self.aws_request_id = aws_request_id
         self.log_group_name = log_group_name
@@ -49,7 +49,7 @@ class SlackMessage():
                 # Add error information
                 if result['validations_failed'] > 0:
                     errKey = data_provider+','+message_type
-                    errors = yaml.dump(self.err_details[errKey], default_flow_style=False)
+                    errors = yaml.dump(self.error_dict[errKey], default_flow_style=False)
                     if errors:
                         groupErrors = "```%s```" % errors
                     if len(groupErrors) > 2947:
