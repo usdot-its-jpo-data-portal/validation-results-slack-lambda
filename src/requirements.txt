@@ -2,3 +2,4 @@ git+https://github.com/usdot-its-jpo-data-portal/ode-output-validator-library@ma
 pyyaml
 pysqs-extended-client
 requests
+Markdown==3.2.1

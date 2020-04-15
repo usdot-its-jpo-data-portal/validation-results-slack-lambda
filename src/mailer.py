@@ -10,14 +10,14 @@ class EmailReport():
         self.client = boto3.client('ses')
         self.sender = sender
 
-    def send(self, logger, recipients, cc, subject, body):
+    def send(self, logger, recipients, cc, subject, body, bodyHtml):
         bodyhtml = """<html>
         <head></head>
         <body>
-        <p>{}</p>
+        {}
         </body>
         </html>
-        """.format(body.replace("\n", '<br/>'))
+        """.format(bodyHtml.replace("\n", '<br/>'))
 
         try:
             #Provide the contents of the email.
