@@ -1,10 +1,6 @@
-import boto3
 import json
 import logging
 import os
-import pickle
-import yaml
-from pysqs_extended_client.SQSClientExtended import SQSClientExtended
 
 from aggregator import ResultAggregator
 

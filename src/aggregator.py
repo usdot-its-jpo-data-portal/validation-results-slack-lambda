@@ -18,6 +18,7 @@ class ResultAggregator():
         self.env_var_dict = env_var_dict
         self.report_done = False
         self.sqs_client = boto3.client('sqs')
+        self.lambda_client = boto3.client('lambda')
         self.sqs_extended = SQSClientExtended()
         self.result_queue_url = self.sqs_client.get_queue_url(QueueName=env_var_dict['SQS_RESULT_QUEUE'])['QueueUrl']
 
@@ -80,7 +81,7 @@ class ResultAggregator():
             self.report_info['error_dict'][errKey] = {}
             self.report_info['error_details'][errKey] = {}
         self.report_info['error_dict'][errKey][cur_msg_key] = []
-        self.report_info['error_dict'][errKey][cur_msg_key] = []
+        self.report_info['error_details'][errKey][cur_msg_key] = []
 
         self.report_info['result_dict'][data_provider][message_type]['files_analyzed'] += 1
 
@@ -98,10 +99,10 @@ class ResultAggregator():
                     self.report_info['error_details'][errKey][cur_msg_key].append(validation['Details'])
 
 
-    def parse_messages(self, message):
+    def parse_message(self, message):
         self.report_info['sqs_msgs_received'] += 1
         self.logger.debug("Current message: %s" % message['MessageId'])
-        if message['MessageId'] in self.received_message_ids:
+        if message['MessageId'] in self.report_info['received_message_ids']:
             self.logger.debug("Detected previously processed SQS message, skipping to prevent duplicates...")
             return
         self.report_info['received_message_ids'].append(message['MessageId'])
@@ -151,8 +152,7 @@ class ResultAggregator():
 
     def trigger_lambda(self):
         # invoke lambda asynchronously to continue aggregating results for report
-        lambda_client = self.aws.session.client('lambda')
-        response = lambda_client.invoke(
+        response = self.lambda_client.invoke(
             FunctionName=self.context.function_name,
             InvocationType='Event',
             LogType='Tail',
