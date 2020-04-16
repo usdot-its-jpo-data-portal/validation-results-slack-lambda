@@ -31,8 +31,8 @@ Resources:
         - { AWS_ENV: !Ref ENV }
       Role: "{{resolve:ssm:lambda-sqs-role-arn:1}}"
       Runtime: python3.8
-      Timeout: 600
-      MemorySize: 512
+      Timeout: 900
+      MemorySize: 3008
       Description: Aggregates canary function results and publishes them to Slack.
       Handler: main.lambda_handler
       Environment:
