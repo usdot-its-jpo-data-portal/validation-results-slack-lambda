@@ -84,18 +84,18 @@ class ResultAggregator():
         cur_msg_results = cur_msg_json['results']
         for result in cur_msg_results:
             self.report_info['result_dict'][data_provider][message_type]['records_analyzed'] += 1
-            for validation in result['Validations']:
-                self.report_info['result_dict'][data_provider][message_type]['validation_count'] += 1
-                self.report_info['total_validation_count'] += 1
-                if not validation['Valid']:
-                    self.report_info['result_dict'][data_provider][message_type]['validations_failed'] += 1
-                    self.report_info['total_validations_failed'] += 1
-                    self.logger.debug("Found failed validation: %s" % validation)
-                    #TODO: save all error_dict info
-                    if len(self.report_info['error_dict'][errKey].keys()) < 50:
-                        if not self.report_info['error_dict'][errKey].get(cur_msg_key):
-                            self.report_info['error_dict'][errKey][cur_msg_key] = []
-                        self.report_info['error_dict'][errKey][cur_msg_key].append(validation['Details'])
+            validation = result['Validations']
+            self.report_info['result_dict'][data_provider][message_type]['validation_count'] += validation['total_count']
+            self.report_info['total_validation_count'] += validation['total_count']
+            if validation['error_count'] > 0:
+                self.report_info['result_dict'][data_provider][message_type]['validations_failed'] += validation['error_count']
+                self.report_info['total_validations_failed'] += validation['error_count']
+                self.logger.debug("Found failed validation: %s" % validation['error_details'])
+                #TODO: save all error_dict info
+                if len(self.report_info['error_dict'][errKey].keys()) < 50:
+                    if not self.report_info['error_dict'][errKey].get(cur_msg_key):
+                        self.report_info['error_dict'][errKey][cur_msg_key] = []
+                    self.report_info['error_dict'][errKey][cur_msg_key].append(validation['error_details'])
 
 
     def parse_message(self, message):
