@@ -7,6 +7,8 @@
 mkdir _package
 pip install -r src/requirements.txt --upgrade --target _package
 cp src/* _package/
-zip -r validation-results-lambda.zip _package/*
+cd _package/
+zip -r ../validation-results-lambda.zip *
+cd ..
 rm -rf _package/
 echo "Created package in validation-results-lambda.zip"
