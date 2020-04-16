@@ -71,7 +71,8 @@ This project is licensed under the Apache License - see the [LICENSE](LICENSE) f
 
 ## Acknowledgments
 
-SQS Extended Library Code sourced from https://github.com/timothymugayi/boto3-sqs-extended-client-lib
+SQS Extended Library Code sourced from https://github.com/timothymugayi/boto3-sqs-extended-client-lib.
+Markdown library sourced from https://python-markdown.github.io/.
 
 ## Code.gov Registration Info
 
