@@ -82,7 +82,7 @@ class SlackMessage():
             result_tuples.append(('section', 'mrkdwn', "**Additional Information:** %s" % extra_message))
 
         slack_message = {
-            "blocks": [{'type': blockType, 'text': {'type': textType, 'text': textText}} if blockType != 'divider'
+            "blocks": [{'type': blockType, 'text': {'type': textType, 'text': textText.replace('**', '*')}} if blockType != 'divider'
                         else {'type': 'divider'}
                         for blockType, textType, textText in result_tuples]+[{"type": "divider"}]
         }
