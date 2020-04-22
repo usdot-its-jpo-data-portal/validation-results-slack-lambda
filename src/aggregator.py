@@ -139,7 +139,8 @@ class ResultAggregator():
             log_stream_name=self.context.log_stream_name,
             recipients_dict=self.env_var_dict['RECIPIENTS_DICT'],
             sender=self.env_var_dict['SENDER'],
-            cc=self.env_var_dict['CC']
+            cc=self.env_var_dict['CC'],
+            report_date=self.report_info['report_date']
         )
 
         msgs_visible, msgs_flight = self.get_queue_attributes()
