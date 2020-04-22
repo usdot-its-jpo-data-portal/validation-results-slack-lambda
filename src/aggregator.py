@@ -39,6 +39,16 @@ class ResultAggregator():
             }
             self.logger.info('Starting report for {}'.format(self.report_info.get('report_date')))
 
+    def get_queue_attributes(self):
+        queue_attrs = self.sqs_client.get_queue_attributes(
+            QueueUrl=self.result_queue_url,
+            AttributeNames=['ApproximateNumberOfMessages',
+                            'ApproximateNumberOfMessagesNotVisible']
+        )
+        msgs_visible = queue_attrs['Attributes']['ApproximateNumberOfMessages']
+        msgs_flight = queue_attrs['Attributes']['ApproximateNumberOfMessagesNotVisible']
+        return msgs_visible, msgs_flight
+
     def decide_to_continue(self, messages):
         # check if need to trigger new lambda
         if self.context.get_remaining_time_in_millis() < 60000:
@@ -46,7 +56,9 @@ class ResultAggregator():
             return False
 
         # check if any more messages
-        if messages == None or len(messages) == 0:
+        msgs_visible, msgs_flight = self.get_queue_attributes()
+        msg_total = int(msgs_visible) + int(msgs_flight)
+        if msg_total == 0:
             self.report_done = True
             self.logger.info("Report done. No more messages left in queue.")
             return False
@@ -112,7 +124,6 @@ class ResultAggregator():
             queue_url=self.result_queue_url, max_number_Of_Messages=1)
         return messages
 
-
     def send_report(self):
         self.logger.debug(
             "Finished message polling loop, found %d SQS messages." % self.report_info['sqs_msgs_received'])
@@ -128,16 +139,11 @@ class ResultAggregator():
             log_stream_name=self.context.log_stream_name,
             recipients_dict=self.env_var_dict['RECIPIENTS_DICT'],
             sender=self.env_var_dict['SENDER'],
-            cc=self.env_var_dict['CC']
+            cc=self.env_var_dict['CC'],
+            report_date=self.report_info['report_date']
         )
 
-        queue_attrs = self.sqs_client.get_queue_attributes(
-            QueueUrl=self.result_queue_url,
-            AttributeNames=['ApproximateNumberOfMessages',
-                            'ApproximateNumberOfMessagesNotVisible']
-        )
-        msgs_visible = queue_attrs['Attributes']['ApproximateNumberOfMessages']
-        msgs_flight = queue_attrs['Attributes']['ApproximateNumberOfMessagesNotVisible']
+        msgs_visible, msgs_flight = self.get_queue_attributes()
         seconds_remaining = self.context.get_remaining_time_in_millis()/1000
         queue_status_msg = "\nAnalysis reports waiting to be aggregated: *%s*\nAnalysis reports currently being aggregated: *%s*\nSeconds Remaining in Execution: *%s*" % (
             str(msgs_visible), str(msgs_flight), str(seconds_remaining))
