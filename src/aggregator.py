@@ -54,7 +54,7 @@ class ResultAggregator():
         # check date
         message_sent_time = int(messages[0]['Attributes']['SentTimestamp'])
         message_sent_day = datetime.fromtimestamp(message_sent_time/1000).strftime('%Y-%m-%d')
-        if message_sent_day != self.report_info['report_date']:
+        if message_sent_day > self.report_info['report_date']:
             self.report_done = True
             self.logger.info("Report done. All validations from {} have been aggregated".format(self.report_info['report_date']))
             return False
@@ -82,21 +82,17 @@ class ResultAggregator():
         self.report_info['result_dict'][data_provider][message_type]['files_analyzed'] += 1
 
         cur_msg_results = cur_msg_json['results']
-        for result in cur_msg_results:
-            resultSerialId, resultValidationCount, resultErrorCount, resultErrorList = result
-            self.report_info['result_dict'][data_provider][message_type]['records_analyzed'] += 1
-            self.report_info['result_dict'][data_provider][message_type]['validation_count'] += resultValidationCount
-            self.report_info['total_validation_count'] += resultValidationCount
-            if resultErrorCount > 0:
-                self.report_info['result_dict'][data_provider][message_type]['validations_failed'] += resultErrorCount
-                self.report_info['total_validations_failed'] += resultErrorCount
-                self.logger.debug("Found failed validation: %s" % resultErrorList)
-                #TODO: save all error_dict info
-                if len(self.report_info['error_dict'][errKey].keys()) < 50:
-                    if not self.report_info['error_dict'][errKey].get(cur_msg_key):
-                        self.report_info['error_dict'][errKey][cur_msg_key] = []
-                    self.report_info['error_dict'][errKey][cur_msg_key].append(resultErrorList)
-
+        self.report_info['result_dict'][data_provider][message_type]['records_analyzed'] += cur_msg_results['num_records']
+        self.report_info['result_dict'][data_provider][message_type]['validation_count'] += cur_msg_results['num_validations']
+        self.report_info['result_dict'][data_provider][message_type]['validations_failed'] += cur_msg_results['num_validation_errors']
+        self.report_info['total_validation_count'] += cur_msg_results['num_validations']
+        self.report_info['total_validations_failed'] += cur_msg_results['num_validation_errors']
+        if cur_msg_results['errors']:
+            self.logger.debug("Found failed validation: %s" % cur_msg_results['errors'])
+            if len(self.report_info['error_dict'][errKey].keys()) < 50:
+                if not self.report_info['error_dict'][errKey].get(cur_msg_key):
+                    self.report_info['error_dict'][errKey][cur_msg_key] = []
+                self.report_info['error_dict'][errKey][cur_msg_key].append(cur_msg_results['errors'])
 
     def parse_message(self, message):
         self.report_info['sqs_msgs_received'] += 1
@@ -107,7 +103,6 @@ class ResultAggregator():
         self.report_info['received_message_ids'].append(message['MessageId'])
         cur_msg_json = json.loads(message['Body'])
         self.parse_message_body(cur_msg_json)
-
 
     def get_next_message(self, messages, last_receipt_handle):
         self.sqs_extended.delete_message(
