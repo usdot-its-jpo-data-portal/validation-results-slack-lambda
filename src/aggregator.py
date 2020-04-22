@@ -89,10 +89,11 @@ class ResultAggregator():
         self.report_info['total_validations_failed'] += cur_msg_results['num_validation_errors']
         if cur_msg_results['errors']:
             self.logger.debug("Found failed validation: %s" % cur_msg_results['errors'])
-            if len(self.report_info['error_dict'][errKey].keys()) < 50:
-                if not self.report_info['error_dict'][errKey].get(cur_msg_key):
-                    self.report_info['error_dict'][errKey][cur_msg_key] = []
-                self.report_info['error_dict'][errKey][cur_msg_key].append(cur_msg_results['errors'])
+            for errFieldDetailStr, rowSerialIds in cur_msg_results['errors'].items():
+                if errFieldDetailStr not in self.report_info['error_dict'][errKey]:
+                    self.report_info['error_dict'][errKey][errFieldDetailStr] = []
+                rowSerialIdStr = '{}:{}'.format(cur_msg_key, ','.join(rowSerialIds))
+                self.report_info['error_dict'][errKey][errFieldDetailStr].append(rowSerialIdStr)
 
     def parse_message(self, message):
         self.report_info['sqs_msgs_received'] += 1
