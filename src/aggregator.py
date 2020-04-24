@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import pickle
+import traceback
 import yaml
 from pysqs_extended_client.SQSClientExtended import SQSClientExtended
 
@@ -64,7 +65,13 @@ class ResultAggregator():
             return False
 
         # check date
-        message_sent_time = int(messages[0]['Attributes']['SentTimestamp'])
+        try:
+            message = messages[0]
+        except:
+            self.logger.debug('DEBUG: Cannot get next message. Error details: {}'.format(str(traceback.format_exc())))
+            return True
+
+        message_sent_time = int(message['Attributes']['SentTimestamp'])
         message_sent_day = datetime.fromtimestamp(message_sent_time/1000).strftime('%Y-%m-%d')
         if message_sent_day > self.report_info['report_date']:
             self.report_done = True
@@ -104,7 +111,7 @@ class ResultAggregator():
             for errFieldDetailStr, rowSerialIds in cur_msg_results['errors'].items():
                 if errFieldDetailStr not in self.report_info['error_dict'][errKey]:
                     self.report_info['error_dict'][errKey][errFieldDetailStr] = []
-                rowSerialIdStr = '{}:{}'.format(cur_msg_key, ','.join(rowSerialIds))
+                rowSerialIdStr = '{}:{}'.format(cur_msg_key, ','.join([str(i) for i in rowSerialIds]))
                 self.report_info['error_dict'][errKey][errFieldDetailStr].append(rowSerialIdStr)
 
     def parse_message(self, message):
@@ -117,9 +124,10 @@ class ResultAggregator():
         cur_msg_json = json.loads(message['Body'])
         self.parse_message_body(cur_msg_json)
 
-    def get_next_message(self, messages, last_receipt_handle):
-        self.sqs_extended.delete_message(
-            queue_url=self.result_queue_url, receipt_handle=last_receipt_handle)
+    def get_next_message(self, messages, last_receipt_handle=None):
+        if last_receipt_handle:
+            self.sqs_extended.delete_message(
+                queue_url=self.result_queue_url, receipt_handle=last_receipt_handle)
         messages = self.sqs_extended.receive_message(
             queue_url=self.result_queue_url, max_number_Of_Messages=1)
         return messages
@@ -168,7 +176,11 @@ class ResultAggregator():
 
         messages = self.sqs_extended.receive_message(queue_url=self.result_queue_url, max_number_Of_Messages=1)
         while self.decide_to_continue(messages):
-            message = messages[0]
+            try:
+                message = messages[0]
+            except:
+                self.logger.debug('DEBUG: Cannot get next message. Error details: {}'.format(str(traceback.format_exc())))
+                messages = self.get_next_message(messages)
             self.parse_message(message)
             messages = self.get_next_message(messages, last_receipt_handle=message['ReceiptHandle'])
 
