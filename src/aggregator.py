@@ -68,7 +68,7 @@ class ResultAggregator():
         try:
             message = messages[0]
         except:
-            self.logger.debug('DEBUG: Cannot get message. Continue to get next message. Error details: {}'.format(str(traceback.format_exc())))
+            self.logger.debug('DEBUG: Cannot get next message. Error details: {}'.format(str(traceback.format_exc())))
             return True
 
         message_sent_time = int(message['Attributes']['SentTimestamp'])
@@ -179,7 +179,7 @@ class ResultAggregator():
             try:
                 message = messages[0]
             except:
-                self.logger.debug('DEBUG: Get next message. Error details: {}'.format(str(traceback.format_exc())))
+                self.logger.debug('DEBUG: Cannot get next message. Error details: {}'.format(str(traceback.format_exc())))
                 messages = self.get_next_message(messages)
             self.parse_message(message)
             messages = self.get_next_message(messages, last_receipt_handle=message['ReceiptHandle'])
