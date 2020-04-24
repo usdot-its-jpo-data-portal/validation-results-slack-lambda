@@ -111,7 +111,7 @@ class ResultAggregator():
             for errFieldDetailStr, rowSerialIds in cur_msg_results['errors'].items():
                 if errFieldDetailStr not in self.report_info['error_dict'][errKey]:
                     self.report_info['error_dict'][errKey][errFieldDetailStr] = []
-                rowSerialIdStr = '{}:{}'.format(cur_msg_key, ','.join([str(i) for i in rowSerialIds]))
+                rowSerialIdStr = '{}: error in {}/{} records'.format(cur_msg_key, len(rowSerialIds), cur_msg_results['num_records'])
                 self.report_info['error_dict'][errKey][errFieldDetailStr].append(rowSerialIdStr)
 
     def parse_message(self, message):
