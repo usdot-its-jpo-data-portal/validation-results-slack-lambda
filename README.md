@@ -1,4 +1,6 @@
 # validation-results-slack-lambda
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-its-jpo-data-portal_validation-results-slack-lambda&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-its-jpo-data-portal_validation-results-slack-lambda)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=usdot-its-jpo-data-portal_validation-results-slack-lambda&metric=coverage)](https://sonarcloud.io/dashboard?id=usdot-its-jpo-data-portal_validation-results-slack-lambda)
 
 This is a Python project designed for us as an Amazon Web Services (AWS) Lambda function. It is set up to poll SQS for validation result messages, aggregate the errors into a packaged message, and send it to a Slack channel.
 
