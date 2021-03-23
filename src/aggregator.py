@@ -181,6 +181,7 @@ class ResultAggregator():
             except:
                 self.logger.debug('DEBUG: Cannot get next message. Error details: {}'.format(str(traceback.format_exc())))
                 messages = self.get_next_message(messages)
+                continue
             self.parse_message(message)
             messages = self.get_next_message(messages, last_receipt_handle=message['ReceiptHandle'])
 
